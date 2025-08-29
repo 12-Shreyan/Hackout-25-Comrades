@@ -2,10 +2,8 @@ import multer from "multer";
 
 // store files in memory instead of disk
 const storage = multer.memoryStorage();
-
 const upload = multer({ storage });
-
-module.exports = { upload };
+export {upload}
 
 
 // if dont want to deploy

@@ -1,6 +1,9 @@
 import {v2 as cloudinary} from "cloudinary"
 import fs from "fs"
+import streamifier from 'streamifier'
+import dotenv  from "dotenv";
 
+dotenv.config({path:'./.env'})
 
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
@@ -8,22 +11,26 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET 
 });
 
-const uploadOnCloudinary = async (localFilePath) => {
-    try {
-        if (!localFilePath) return null
-        //upload the file on cloudinary
-        const response = await cloudinary.uploader.upload(localFilePath, {
-            resource_type: "auto"
-        })
-        // file has been uploaded successfull
-        fs.unlinkSync(localFilePath)
-        return response;
+console.log("Cloudinary Config:", {
+  cloud: process.env.CLOUDINARY_CLOUD_NAME,
+  key: process.env.CLOUDINARY_API_KEY ? "✅ loaded" : "❌ missing",
+  secret: process.env.CLOUDINARY_API_SECRET ? "✅ loaded" : "❌ missing",
+});
 
-    } catch (error) {
-        fs.unlinkSync(localFilePath) // remove the locally saved temporary file as the upload operation got failed
-        return null;
-    }
-}
+
+const uploadOnCloudinary = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { resource_type: "auto" },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    );
+    streamifier.createReadStream(fileBuffer).pipe(uploadStream);
+  });
+};
+
 
 function getPublicIdFromUrl(url) {
   // Example: https://res.cloudinary.com/<cloud_name>/image/upload/v1234567890/folder/filename.jpg
@@ -34,7 +41,7 @@ function getPublicIdFromUrl(url) {
 }
 
 
-export const deleteImageByUrl = async (url) => {
+const deleteImageByUrl = async (url) => {
   const publicId = getPublicIdFromUrl(url);
   try {
     const result = await cloudinary.uploader.destroy(publicId);
