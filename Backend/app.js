@@ -14,5 +14,11 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
+import userRouter from "./routes/user.route.js"
+app.use("/api/users",userRouter)
+
+app.use('/',(req,res)=>{
+    res.send('404: page not found')
+})
 
 export { app }

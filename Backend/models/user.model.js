@@ -19,18 +19,18 @@ const userSchema = new Schema(
             lowecase: true,
             trim: true, 
         },
-        fullName: {
-            type: String,
-            required: true,
-            trim: true, 
-            index: true
+        points:{
+            type:Number,
+            default:0
+        },
+        isAdmin:{
+            type:Boolean,
+            default:false
         },
         avatar: {
             type: String, // cloudinary url
+            default:'',
             required: true,
-        },
-        coverImage: {
-            type: String, // cloudinary url
         },
         password: {
             type: String,
@@ -49,7 +49,7 @@ const userSchema = new Schema(
 userSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
 
-    this.password = await bcrypt.hash(this.password, 10)
+    this.password = await bcrypt.hash(this.password,Number(process.env.HASH_SALT_ROUNDS))
     next()
 })
 
@@ -63,7 +63,6 @@ userSchema.methods.generateAccessToken = function(){
             _id: this._id,
             email: this.email,
             username: this.username,
-            fullName: this.fullName
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
