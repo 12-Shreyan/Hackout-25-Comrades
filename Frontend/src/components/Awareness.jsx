@@ -58,7 +58,7 @@ export default function Awareness() {
 
         <div className="mt-12">
           <a
-            href="/submit-report"
+            href="/report"
             className="inline-block bg-green-600 text-white font-semibold px-8 py-3 rounded-full hover:bg-green-700 transition"
           >
             Start Reporting Now

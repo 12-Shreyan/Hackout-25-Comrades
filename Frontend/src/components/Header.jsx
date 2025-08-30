@@ -16,11 +16,11 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex space-x-8 items-center font-medium">
-          <Link href="/leaderboard" className="hover:text-green-100 transition">
-            Leaderboard
-          </Link>
           <Link href="/report" className="hover:text-green-100 transition">
             Contribution
+          </Link>
+          <Link href="/leaderboard" className="hover:text-green-100 transition">
+            Leaderboard
           </Link>
 
           {/* <Link
@@ -50,11 +50,11 @@ export default function Header() {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-green-600 px-6 py-4 space-y-4">
-          <Link href="/leaderboard" className="block hover:text-green-200">
-            Leaderboard
-          </Link>
           <Link href="/report" className="block hover:text-green-200">
             Contribution
+          </Link>
+          <Link href="/leaderboard" className="block hover:text-green-200">
+            Leaderboard
           </Link>
           {/* <Link href="/profile" className="block flex items-center gap-2 hover:text-green-200">
             <User size={18} /> Profile
