@@ -217,7 +217,7 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
 const updateAccountDetails = asyncHandler(async(req, res) => {
     const {username, email} = req.body
 
-    const matchedStage={}
+    let matchedStage={}
     if(username) matchedStage.username=username
     if(email) matchedStage.email=email
     

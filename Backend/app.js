@@ -15,7 +15,9 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 import userRouter from "./routes/user.route.js"
+import reportRouter from "./routes/report.route.js"
 app.use("/api/users",userRouter)
+app.use("/api/reports",reportRouter)
 
 app.use('/',(req,res)=>{
     res.send('404: page not found')
