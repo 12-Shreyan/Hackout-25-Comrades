@@ -4,7 +4,8 @@ import {
     allReports,
     reportDetails,
     updateReport,
-    deleteReport
+    deleteReport,
+    changeStatus
 } from "../controllers/report.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -25,5 +26,5 @@ router.route("/:id")
 .put(verifyJWT,upload.fields([{name:"mangroove",maxCount:3}]),updateReport)
 .delete(verifyJWT,deleteReport)
 
-
+router.route("/:id/status/:status").patch(verifyJWT,changeStatus)
 export default router

@@ -16,8 +16,11 @@ app.use(cookieParser())
 
 import userRouter from "./routes/user.route.js"
 import reportRouter from "./routes/report.route.js"
+import adminRouter from "./routes/admin.route.js"
+
 app.use("/api/users",userRouter)
 app.use("/api/reports",reportRouter)
+app.use("/api/admin/users",adminRouter)
 
 app.use('/',(req,res)=>{
     res.send('404: page not found')

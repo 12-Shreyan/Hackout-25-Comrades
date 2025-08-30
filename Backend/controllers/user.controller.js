@@ -4,7 +4,7 @@ import {deleteImageByUrl, uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
 import { User } from "../models/user.model.js";
-
+import { Report } from "../models/report.model.js";
 
 const generateAccessAndRefereshTokens = async(userId) =>{
     try {
@@ -309,6 +309,134 @@ const deleteProfile = asyncHandler(async (req, res) => {
   );
 });
 
+const userContributions=asyncHandler(async(req,res)=>{
+    const userId=req.params.id
+    const user=await User.findById(userId)
+    if(!user) throw new ApiError(404,"no user found")
+    
+    let contributions=await Report.find({userId:userId})
+    contributions.username=user.username
+    contributions.save()
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, contributions, "user contributions")
+    )
+})
+
+const topContributors=asyncHandler(async(req,res)=>{
+    const contributors=await User.aggregate([
+        {
+            $sort:{points:-1}
+        },
+        {
+            $limit:10
+        },
+        {
+            $project:{
+                username: 1,
+                avatar:1,
+                points: 1,
+                _id: 0
+            }
+        }
+    ])
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, contributors, "top contributors")
+    )
+})
+
+const userContributionProfile=asyncHandler(async(req,res)=>{
+    const userId = req.params.id;
+
+    const profile = await User.aggregate([
+        {
+            $match: { _id: new mongoose.Types.ObjectId(userId) } // Match the user
+        },
+        {
+            $lookup: { // Join reports authored by this user
+                from: "reports",
+                localField: "_id",
+                foreignField: "userId",
+                as: "reports"
+            }
+        },
+        {
+            $lookup: { // Join comments authored by this user
+                from: "comments",
+                localField: "_id",
+                foreignField: "userId",
+                as: "comments"
+            }
+        },
+        {
+            $addFields: {
+                reportsCount: { $size: "$reports" },
+                commentsCount: { $size: "$comments" },
+                approvedReports: {
+                    $size: {
+                        $filter: {
+                            input: "$reports",
+                            as: "report",
+                            cond: { $eq: ["$$report.status", "approved"] }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                pendingReports: {
+                        $size: {
+                            $filter: {
+                                input: "$reports",
+                                as: "report",
+                                cond: { $eq: ["$$report.status", "pending"] }
+                            }
+                        }
+                }       
+            }
+        },
+        {
+            $addFields: {
+                rejectedReports: {
+                        $size: {
+                            $filter: {
+                                input: "$reports",
+                                as: "report",
+                                cond: { $eq: ["$$report.status", "rejected"] }
+                            }
+                        }
+                }       
+            }
+        },
+        {
+        $project: {
+            username: 1,
+            email: 1, // include if public, otherwise remove
+            reportsCount: 1,
+            commentsCount: 1,
+            approvedReports: 1,
+            pendingReports: 1,
+            rejectedReports: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            points:1
+        }
+        }
+  ]);
+
+  if (!profile || profile.length === 0) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, profile[0], "User profile fetched successfully")
+  );
+})
 
 export {
     registerUser,
@@ -319,5 +447,8 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     userProfile,
-    deleteProfile
+    deleteProfile,
+    userContributions,
+    topContributors,
+    userContributionProfile
 }

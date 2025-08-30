@@ -193,10 +193,30 @@ const deleteReport=asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200, {}, "Report deleted successfully"));
 })
 
+const changeStatus=asyncHandler(async(req,res)=>{
+    const reportId=req.params.id
+    const {status}=req.params
+    const user=await User.findById(req.user._id)
+    if(!user.isAdmin) throw new ApiError(400,"access denied")
+    
+    const report=await Report.findById(reportId)
+    if(report.status==="pending"){
+        if(status==="1") report.status="approved"
+        else report.status="rejected"
+    }
+    else throw new ApiError(400,"status already updated")
+
+    report.save()
+    return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "status updated successfully"));
+})
+
 export {
     createReport,
     allReports,
     reportDetails,
     updateReport,
-    deleteReport
+    deleteReport,
+    changeStatus
 }
