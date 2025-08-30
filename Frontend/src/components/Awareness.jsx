@@ -1,5 +1,7 @@
+"use client";
 import React from "react";
 import { Shield, Leaf, CloudRain, BarChart2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Awareness() {
   const facts = [
@@ -29,41 +31,79 @@ export default function Awareness() {
     },
   ];
 
-  return (
-    <section className="py-20 ">
-      <div className="max-w-6xl mx-auto px-6 text-center">
-        <h2 className="text-4xl font-bold text-green-800 mb-6">
-          Why Mangroves Are Crucial
-        </h2>
-        <p className="text-gray-700 text-lg max-w-3xl mx-auto mb-12">
-          Mangroves are not just trees—they are **lifelines** for our coasts, communities, and climate.
-          They protect us from natural disasters, provide livelihoods, store carbon, and sustain biodiversity.
-          By reporting threats and participating in BioGroves, you make a **real-world impact** on the environment and society.
-        </p>
+  // Framer motion variants
+  const containerVariants = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
 
-        <div className="grid md:grid-cols-2 gap-10">
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
+  return (
+    <section className="py-20 bg-gray-50">
+      <div className="max-w-6xl mx-auto px-6 text-center">
+        <motion.h2
+          className="text-4xl font-bold text-green-800 mb-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          Why Mangroves Are Crucial
+        </motion.h2>
+
+        <motion.p
+          className="text-gray-700 text-lg max-w-3xl mx-auto mb-12"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          Mangroves are not just trees—they are <strong>lifelines</strong> for our coasts, communities, and climate.
+          They protect us from natural disasters, provide livelihoods, store carbon, and sustain biodiversity.
+          By reporting threats and participating in BioGroves, you make a <strong>real-world impact</strong> on the environment and society.
+        </motion.p>
+
+        <motion.div
+          className="grid md:grid-cols-2 gap-10"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
           {facts.map((fact, index) => (
-            <div
+            <motion.div
               key={index}
-              className="flex flex-col items-center text-center bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition"
+              className="flex flex-col items-center text-center bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer"
+              variants={cardVariants}
+              whileHover={{ scale: 1.05 }}
             >
               {fact.icon}
               <h3 className="text-xl font-semibold text-green-900 mb-2">
                 {fact.title}
               </h3>
               <p className="text-gray-600">{fact.description}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        <div className="mt-12">
+        <motion.div
+          className="mt-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
           <a
             href="/report"
             className="inline-block bg-green-600 text-white font-semibold px-8 py-3 rounded-full hover:bg-green-700 transition"
           >
             Start Reporting Now
           </a>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

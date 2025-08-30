@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Crown, Award, Medal, Users, Search, MapPin } from "lucide-react";
+import { motion } from "framer-motion";
 
 // Sample leaderboard data
 const leaderboardData = [
@@ -18,12 +19,9 @@ export default function Leaderboard() {
   const [search, setSearch] = useState("");
   const [regionFilter, setRegionFilter] = useState("");
 
-  // Filtered leaderboard
   const filteredData = useMemo(() => {
     return leaderboardData
-      .filter(user =>
-        user.name.toLowerCase().includes(search.toLowerCase())
-      )
+      .filter(user => user.name.toLowerCase().includes(search.toLowerCase()))
       .filter(user => (regionFilter ? user.region === regionFilter : true));
   }, [search, regionFilter]);
 
@@ -47,12 +45,30 @@ export default function Leaderboard() {
 
   const regions = [...new Set(leaderboardData.map(user => user.region))];
 
+  // Framer Motion variants
+  const containerVariants = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.2 } },
+  };
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+  const rowVariants = {
+    hidden: { opacity: 0, x: -20 },
+    show: { opacity: 1, x: 0, transition: { duration: 0.5 } },
+  };
+  const statVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+
   return (
     <section className="max-w-6xl mx-auto px-6 py-16">
-      <div className="text-center mb-12">
+      <motion.div className="text-center mb-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
         <h2 className="text-3xl font-bold text-green-800">🌿 Community Leaderboard</h2>
         <p className="text-gray-600 mt-2">Recognizing top guardians of our mangroves</p>
-      </div>
+      </motion.div>
 
       {/* Search & Filter */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
@@ -82,29 +98,29 @@ export default function Leaderboard() {
       </div>
 
       {/* Top 3 contributors */}
-      <div className="flex justify-center gap-8 mb-12 flex-wrap">
+      <motion.div className="flex justify-center gap-8 mb-12 flex-wrap" variants={containerVariants} initial="hidden" animate="show">
         {topThree.map((user, index) => (
-          <div
+          <motion.div
             key={user.id}
-            className={`flex flex-col items-center rounded-lg p-4 shadow-lg w-44 transition transform hover:scale-105 ${
+            className={`flex flex-col items-center rounded-lg p-4 shadow-lg w-44 cursor-pointer ${
               index === 0 ? "bg-yellow-100" : index === 1 ? "bg-gray-100" : "bg-orange-100"
             }`}
+            variants={cardVariants}
+            whileHover={{ scale: 1.05 }}
           >
             {getBadgeIcon(index)}
             <h3 className="font-semibold text-lg mt-2">{user.name}</h3>
             <p className="text-sm text-gray-600">{user.reports} Reports</p>
-            <span
-              className={`mt-2 px-3 py-1 text-sm rounded-full font-medium ${getBadgeColor(user.badge)}`}
-            >
+            <span className={`mt-2 px-3 py-1 text-sm rounded-full font-medium ${getBadgeColor(user.badge)}`}>
               {user.badge}
             </span>
             <p className="text-xs mt-1 text-gray-500">{user.region}</p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Other contributors table */}
-      <div className="bg-green-50 p-6 rounded-2xl shadow-md overflow-x-auto">
+      <motion.div className="bg-green-50 p-6 rounded-2xl shadow-md overflow-x-auto" variants={containerVariants} initial="hidden" animate="show">
         <table className="w-full text-left border-collapse">
           <thead className="bg-green-200">
             <tr>
@@ -117,7 +133,7 @@ export default function Leaderboard() {
           </thead>
           <tbody>
             {others.map((user, index) => (
-              <tr key={user.id} className="border-b hover:bg-green-100 transition">
+              <motion.tr key={user.id} className="border-b hover:bg-green-100 transition" variants={rowVariants}>
                 <td className="py-3 px-4 font-semibold">{index + 4}</td>
                 <td className="py-3 px-4">{user.name}</td>
                 <td className="py-3 px-4">{user.reports}</td>
@@ -129,30 +145,30 @@ export default function Leaderboard() {
                 <td className="py-3 px-4 flex items-center gap-1">
                   <MapPin className="w-4 h-4 text-green-700" /> {user.region}
                 </td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>
-      </div>
+      </motion.div>
 
       {/* Stats */}
-      <div className="mt-12 flex justify-around flex-wrap gap-6 text-center">
-        <div className="bg-green-100 p-4 rounded-xl w-48">
+      <motion.div className="mt-12 flex justify-around flex-wrap gap-6 text-center" variants={containerVariants} initial="hidden" animate="show">
+        <motion.div className="bg-green-100 p-4 rounded-xl w-48" variants={statVariants}>
           <Users className="mx-auto w-8 h-8 text-green-700" />
           <p className="mt-2 font-semibold text-lg">530+</p>
           <p className="text-sm text-gray-600">Active Guardians</p>
-        </div>
-        <div className="bg-green-100 p-4 rounded-xl w-48">
+        </motion.div>
+        <motion.div className="bg-green-100 p-4 rounded-xl w-48" variants={statVariants}>
           <Users className="mx-auto w-8 h-8 text-green-700" />
           <p className="mt-2 font-semibold text-lg">1,248+</p>
           <p className="text-sm text-gray-600">Reports Submitted</p>
-        </div>
-        <div className="bg-green-100 p-4 rounded-xl w-48">
+        </motion.div>
+        <motion.div className="bg-green-100 p-4 rounded-xl w-48" variants={statVariants}>
           <Users className="mx-auto w-8 h-8 text-green-700" />
           <p className="mt-2 font-semibold text-lg">112+</p>
           <p className="text-sm text-gray-600">Hectares Protected</p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }
