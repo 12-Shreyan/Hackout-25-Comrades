@@ -8,10 +8,15 @@ const reportSchema = new Schema(
             ref:'User',
             required:true
         },
-        imageUrl: {
-            type: String, // cloudinary url
-            default:'',
+        title: {
+            type: String,
             required: true,
+            trim: true,
+            maxlength: 100, // optional limit
+        },
+        imageUrl: {
+            type: [String], // cloudinary url
+            default:[]
         },
         description: {
             type: String,
