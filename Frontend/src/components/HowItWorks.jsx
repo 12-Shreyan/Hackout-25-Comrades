@@ -46,10 +46,10 @@ export default function HowItWorks() {
   };
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 ">
       <div className="max-w-6xl mx-auto px-6 text-center">
         <motion.h2
-          className="text-4xl font-bold text-gray-800 mb-12"
+          className="text-4xl font-bold text-white mb-12"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}

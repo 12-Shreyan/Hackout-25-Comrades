@@ -16,7 +16,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-green-50 px-4">
+    <div className="min-h-screen flex items-center justify-center  px-4">
       <motion.div
         className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8"
         initial={{ opacity: 0, y: 50 }}

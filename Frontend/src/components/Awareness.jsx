@@ -47,7 +47,7 @@ export default function Awareness() {
   };
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20  text-white">
       <div className="max-w-6xl mx-auto px-6 text-center">
         <motion.h2
           className="text-4xl font-bold text-green-800 mb-6"
@@ -59,7 +59,7 @@ export default function Awareness() {
         </motion.h2>
 
         <motion.p
-          className="text-gray-700 text-lg max-w-3xl mx-auto mb-12"
+          className=" text-lg max-w-3xl mx-auto mb-12"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}

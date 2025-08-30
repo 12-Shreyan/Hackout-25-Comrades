@@ -66,34 +66,35 @@ export default function Leaderboard() {
   return (
     <section className="max-w-6xl mx-auto px-6 py-16">
       <motion.div className="text-center mb-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-        <h2 className="text-3xl font-bold text-green-800">🌿 Community Leaderboard</h2>
-        <p className="text-gray-600 mt-2">Recognizing top guardians of our mangroves</p>
+        <h2 className="text-3xl font-bold text-green-800"> Community Leaderboard</h2>
+        <p className="text-white mt-2">Recognizing top guardians of our mangroves</p>
       </motion.div>
 
       {/* Search & Filter */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
         <div className="relative w-full md:w-1/2">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-3 top-3 w-5 h-5 text-white" />
           <input
             type="text"
             placeholder="Search by name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 rounded-lg border border-gray-300 p-3 focus:ring-2 focus:ring-green-400"
+            className="w-full text-white pl-10 rounded-lg border border-gray-300 p-3 focus:ring-2 focus:ring-green-400"
           />
         </div>
 
         <div className="w-full md:w-1/3">
           <select
             value={regionFilter}
+            
             onChange={(e) => setRegionFilter(e.target.value)}
             className="w-full rounded-lg border border-gray-300 p-3 focus:ring-2 focus:ring-green-400"
           >
-            <option value="">All Regions</option>
+            <option value="" className="">All Regions</option>
             {regions.map((r, idx) => (
               <option key={idx} value={r}>{r}</option>
             ))}
-          </select>
+          </select> 
         </div>
       </div>
 

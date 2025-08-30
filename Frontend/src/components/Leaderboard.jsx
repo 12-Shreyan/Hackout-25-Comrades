@@ -48,10 +48,10 @@ export default function Leaderboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          🌿 Community Leaderboard
+           Community Leaderboard
         </motion.h2>
         <motion.p
-          className="text-gray-700"
+          className="text-white"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
@@ -85,8 +85,8 @@ export default function Leaderboard() {
             >
               {index === 0 ? <Crown /> : index === 1 ? <Award /> : <Medal />}
             </div>
-            <p className="mt-2 font-semibold text-green-900">{user.name}</p>
-            <p className="text-gray-700">{user.reports} Reports</p>
+            <p className="mt-2 font-semibold text-green-700">{user.name}</p>
+            <p className="text-white">{user.reports} Reports</p>
             <span
               className={`mt-1 px-3 py-1 rounded-full text-sm ${badgeColor(
                 user.badge
