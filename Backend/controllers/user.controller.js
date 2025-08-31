@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
 import { User } from "../models/user.model.js";
 import { Report } from "../models/report.model.js";
+import mongoose from "mongoose";
 
 const generateAccessAndRefereshTokens = async(userId) =>{
     try {
@@ -310,7 +311,8 @@ const deleteProfile = asyncHandler(async (req, res) => {
 });
 
 const userContributions=asyncHandler(async(req,res)=>{
-    const userId=req.params.id
+    const userId=new mongoose.Types.ObjectId(req.params.id)
+    
     const user=await User.findById(userId)
     if(!user) throw new ApiError(404,"no user found")
     
