@@ -22,7 +22,7 @@ const router = Router()
 router.route("/register").post(
     upload.single('avatar'),
     registerUser
-    )
+)
 
 router.route("/login").post(loginUser)
 
@@ -37,6 +37,6 @@ router.route("/avatar").patch(verifyJWT, upload.single("avatar"), updateUserAvat
 
 router.route("/:id/contributions").get(userContributions)
 router.route("/leaderboard").get(topContributors)
-
 router.route("/:id").get(verifyJWT,userContributionProfile)
+
 export default router

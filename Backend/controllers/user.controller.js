@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
 import { User } from "../models/user.model.js";
 import { Report } from "../models/report.model.js";
+import mongoose from "mongoose";
 
 const generateAccessAndRefereshTokens = async(userId) =>{
     try {
@@ -310,13 +311,49 @@ const deleteProfile = asyncHandler(async (req, res) => {
 });
 
 const userContributions=asyncHandler(async(req,res)=>{
-    const userId=req.params.id
+    const userId=new mongoose.Types.ObjectId(req.params.id)
+    
     const user=await User.findById(userId)
     if(!user) throw new ApiError(404,"no user found")
     
-    let contributions=await Report.find({userId:userId})
-    contributions.username=user.username
-    contributions.save()
+    let contributions=await Report.aggregate([
+        {
+            $match:{userId:userId}
+        },
+        {
+            $lookup: { 
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+                pipeline:[
+                    {
+                        $project:{
+                            username: 1,
+                            avatar:1,
+                            points: 1,
+                            _id: 0
+                       }
+                    }
+                ]
+            }
+        },
+        {$unwind:'$user'},
+        {
+            $addFields:{
+                username:"$user.username",
+                points:"$user.points",
+                avatar:"$user.avatar"
+            }
+        },
+        {
+            $project:{
+                __v:0,
+                userId:0,
+                user:0
+            }
+        }
+    ])
 
     return res
     .status(200)

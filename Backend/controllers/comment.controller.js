@@ -30,7 +30,6 @@ const addComment=asyncHandler(async(req,res)=>{
 
 const getComments=asyncHandler(async(req,res)=>{
     const reportId=new mongoose.Types.ObjectId(req.params.id)
-    const userId=new mongoose.Types.ObjectId(req.user._id)
     
     const report=await Report.findById(reportId)
     if(!report) throw new ApiError(404,"report not found")
@@ -57,7 +56,7 @@ const getComments=asyncHandler(async(req,res)=>{
         {$unwind:'$user'},
         {
             $lookup:{
-                from:'users',
+                from:'reports',
                 localField:'reportId',
                 foreignField:'_id',
                 as:'report',
@@ -75,7 +74,10 @@ const getComments=asyncHandler(async(req,res)=>{
         {$unwind:'$report'},
         {
             $project:{
-                _id:0
+                _id:0,
+                reportId:0,
+                userId:0,
+                __v:0
             }
         }
     ])
@@ -86,20 +88,20 @@ const getComments=asyncHandler(async(req,res)=>{
 })
 
 const updateComment=asyncHandler(async(req,res)=>{
-    const reportId=new mongoose.Types.ObjectId(req.params.id)
+    const commentId=new mongoose.Types.ObjectId(req.params.id)
     const userId=new mongoose.Types.ObjectId(req.user._id)
+    const user=await User.findById(userId)
+
     const {text}=req.body
     if(!text) throw new ApiError(401,"provide text")
 
-    const report=await Report.findById(reportId)
-    if(!report) throw new ApiError(404,"report not found")
-
-    const comment=await Comment.findOneAndUpdate(
-        {reportId:reportId,userId:userId},
-        {$set:{text:text}},
-        {new:true}
-    )
+    let comment=await Comment.findById(commentId)
     if(!comment) throw new ApiError(404,"comment not found")
+    
+    if(comment.userId.toString()!=userId.toString() && !user.isAdmin) throw new ApiError(400,"access denied")
+    
+    comment.text=text
+    comment.save()
     
     return res
     .status(200)
@@ -107,18 +109,16 @@ const updateComment=asyncHandler(async(req,res)=>{
 })
 
 const deleteComment=asyncHandler(async(req,res)=>{
-    const reportId=new mongoose.Types.ObjectId(req.params.id)
+    const commentId=new mongoose.Types.ObjectId(req.params.id)
     const userId=new mongoose.Types.ObjectId(req.user._id)
     const user=await User.findById(userId)
 
-    const report=await Report.findById(reportId)
-    if(!report) throw new ApiError(404,"report not found")
-
-    if(report.userId.toString()!=userId.toString() && !user.isAdmin) throw new ApiError(400,"access denied")
+    let comment=await Comment.findById(commentId)
+    if(!comment) throw new ApiError(404,"comment not found")
     
-    const comment=await Comment.findOneAndDelete(
-        {reportId:reportId,userId:userId}
-    )
+    if(comment.userId.toString()!=userId.toString() && !user.isAdmin) throw new ApiError(400,"access denied")
+    
+    comment=await Comment.findByIdAndDelete(commentId)
     if(!comment) throw new ApiError(500,"comment not deleted")
     
     return res
