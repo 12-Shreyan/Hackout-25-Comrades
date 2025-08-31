@@ -30,7 +30,6 @@ const addComment=asyncHandler(async(req,res)=>{
 
 const getComments=asyncHandler(async(req,res)=>{
     const reportId=new mongoose.Types.ObjectId(req.params.id)
-    const userId=new mongoose.Types.ObjectId(req.user._id)
     
     const report=await Report.findById(reportId)
     if(!report) throw new ApiError(404,"report not found")
@@ -57,7 +56,7 @@ const getComments=asyncHandler(async(req,res)=>{
         {$unwind:'$user'},
         {
             $lookup:{
-                from:'users',
+                from:'reports',
                 localField:'reportId',
                 foreignField:'_id',
                 as:'report',
