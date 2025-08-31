@@ -53,7 +53,7 @@ const allReports=asyncHandler(async(req,res)=>{
     let matchedStage={}
 
     if(status) matchedStage.status=status
-    else matchedStage.status="approved"
+    else matchedStage.status="pending"
 
     if(user) matchedStage.userId=new mongoose.Types.ObjectId(user)
 
@@ -68,7 +68,8 @@ const allReports=asyncHandler(async(req,res)=>{
             },
         };
     }
-
+    console.log(matchedStage);
+    
     const reports=await Report.aggregate([
         {
             $match:matchedStage
@@ -96,6 +97,12 @@ const allReports=asyncHandler(async(req,res)=>{
         },
         {
             $unwind:'$user' 
+        },
+        {
+            $project:{
+                userId:0,
+                __v:0
+            }
         }
     ])
 
@@ -135,6 +142,12 @@ const reportDetails=asyncHandler(async(req,res)=>{
         },
         {
             $unwind:'$user' 
+        },
+        {
+            $project:{
+                userId:0,
+                __v:0
+            }
         }
     ])
     if (!report.length) throw new ApiError(404, "Report not found");
@@ -209,13 +222,18 @@ const changeStatus=asyncHandler(async(req,res)=>{
     const reportId=new mongoose.Types.ObjectId(req.params.id)
     const {status}=req.params
 
-    const user=await User.findById(req.user._id)
     
     const report=await Report.findById(reportId)
     if (!report) throw new ApiError(404, "Report not found");
+    
+    const user=await User.findById(new mongoose.Types.ObjectId(report.userId))
 
     if(report.status==="pending"){
-        if(status==="1") report.status="approved"
+        if(status==="1") {
+            report.status="approved"
+            user.points=user.points+Number(process.env.POINTS)
+            user.save()
+        }
         else report.status="rejected"
     }
     else if((report.status==="rejected")) throw new ApiError(400,"cant change status of rejected one")
