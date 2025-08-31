@@ -8,7 +8,8 @@ import mongoose from "mongoose";
 
 
 const createReport=asyncHandler(async(req,res)=>{
-    const userId = req.user._id;
+    const userId = new mongoose.Types.ObjectId(req.user._id);
+    
     const { title, description,  longitude, latitude } = req.body;
 
     if (!title || !description) {
@@ -21,10 +22,10 @@ const createReport=asyncHandler(async(req,res)=>{
     let imageUrls = [];
 
     if (req.files?.mangroove) {
-    for (const file of req.files.mangroove) {
-        const uploadRes = await uploadOnCloudinary(file.buffer); // ✅ use buffer
-        if (uploadRes?.secure_url) imageUrls.push(uploadRes.secure_url);
-    }
+        for (const file of req.files.mangroove) {
+            const uploadRes = await uploadOnCloudinary(file.buffer); // ✅ use buffer
+            if (uploadRes?.secure_url) imageUrls.push(uploadRes.secure_url);
+        }
     }
 
 
@@ -105,11 +106,11 @@ const allReports=asyncHandler(async(req,res)=>{
 
 
 const reportDetails=asyncHandler(async(req,res)=>{
-    const {id}=req.params
+    const id=new mongoose.Types.ObjectId(req.params.id)
 
     const report=await Report.aggregate([
         {
-            $match:{_id:new mongoose.Types.ObjectId(id)}
+            $match:{_id:id}
         },
         {
             $lookup:{
@@ -144,14 +145,17 @@ const reportDetails=asyncHandler(async(req,res)=>{
 })
 
 const updateReport=asyncHandler(async(req,res)=>{
-    const userId=req.user._id
+    const userId=new mongoose.Types.ObjectId(req.user._id)
     const user=await User.findById(userId)
-    const reportId=req.params.id
+
+    const reportId=new mongoose.Types.ObjectId(req.params.id)
     let report=await Report.findById(reportId)
+    if (!report) throw new ApiError(404, "Report not found");
+
 
     let matchedStage={}
 
-    if(report.userId.toString()==userId.toString() || user.isAdmin==true){
+    if(report.userId.toString()==userId.toString() || user.isAdmin){
         const {description,title}=req.body
         if(description) matchedStage.description=description
         if(title) matchedStage.title=title
@@ -167,7 +171,7 @@ const updateReport=asyncHandler(async(req,res)=>{
         if (imageUrls.length > 0) matchedStage.imageUrls = imageUrls;
 
     }
-    else throw new ApiError(400, "Access denied")
+    else throw new ApiError(403, "Access denied")
     
     const newReport=await Report.findByIdAndUpdate(
         reportId,
@@ -181,11 +185,19 @@ const updateReport=asyncHandler(async(req,res)=>{
 
 
 const deleteReport=asyncHandler(async(req,res)=>{
-    const id=req.params.id
-    const report=await Report.findByIdAndDelete(id)
+    const id=new mongoose.Types.ObjectId(req.params.id)
+    let report=await Report.findById(id)
+    if (!report) throw new ApiError(404, "Report not found");
+
+    const userId=new mongoose.Types.ObjectId(req.user._id)
+    const user=await User.findById(userId)
+
+    if(report.userId.toString()!=userId.toString() && !user.isAdmin) throw new ApiError(403,"access denied")
+
+    report=await Report.findByIdAndDelete(id)
     if(!report) throw new ApiError(400,"report not deleted")
      
-    for (const url of report.imageUrls) {
+    for (const url of report.imageUrl) {
         await deleteImageByUrl(url);
     }
     return res
@@ -194,19 +206,23 @@ const deleteReport=asyncHandler(async(req,res)=>{
 })
 
 const changeStatus=asyncHandler(async(req,res)=>{
-    const reportId=req.params.id
+    const reportId=new mongoose.Types.ObjectId(req.params.id)
     const {status}=req.params
+
     const user=await User.findById(req.user._id)
-    if(!user.isAdmin) throw new ApiError(400,"access denied")
     
     const report=await Report.findById(reportId)
+    if (!report) throw new ApiError(404, "Report not found");
+
     if(report.status==="pending"){
         if(status==="1") report.status="approved"
         else report.status="rejected"
     }
-    else throw new ApiError(400,"status already updated")
+    else if((report.status==="rejected")) throw new ApiError(400,"cant change status of rejected one")
+    else throw new ApiError(400,"report already approved")
 
     report.save()
+    
     return res
     .status(200)
     .json(new ApiResponse(200, {}, "status updated successfully"));
