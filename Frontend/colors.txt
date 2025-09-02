@@ -1,0 +1,18 @@
+theme: {
+  extend: {
+    colors: {
+      primary: {
+        dark: "#2E7D32",   // forest green
+        light: "#66BB6A",  // light green
+      },
+      beige: {
+        base: "#F5F5DC",   // beige background
+        light: "#EDEADE",  // off-white beige
+      },
+      neutral: {
+        dark: "#333333",   // text
+        white: "#FFFFFF",
+      }
+    }
+  }
+}
